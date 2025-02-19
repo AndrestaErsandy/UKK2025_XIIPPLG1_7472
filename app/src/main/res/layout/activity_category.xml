@@ -45,12 +45,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewCategory"
-                android:layout_width="wrap_content"
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefreshLayout"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp" />
+                android:layout_below="@id/btnTambahCategory"
+                android:layout_marginBottom="56dp"> <!-- Tambahkan margin agar tidak tertutup BottomNavigationView -->
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp" />
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>
     </HorizontalScrollView>
+
+    <ImageView
+        android:id="@+id/Back"
+        android:layout_width="54dp"
+        android:layout_height="41dp"
+        app:srcCompat="@drawable/baseline_arrow_back_24" />
 
 </RelativeLayout>

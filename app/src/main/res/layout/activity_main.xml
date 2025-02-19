@@ -34,8 +34,8 @@
 
     <ImageView
         android:id="@+id/tvProfil"
-        android:layout_width="93dp"
-        android:layout_height="89dp"
+        android:layout_width="69dp"
+        android:layout_height="69dp"
         app:srcCompat="@drawable/baseline_person_pin_24"
         tools:layout_editor_absoluteX="27dp"
         tools:layout_editor_absoluteY="27dp" />

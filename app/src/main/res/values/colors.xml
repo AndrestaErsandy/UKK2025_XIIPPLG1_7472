@@ -5,4 +5,5 @@
     <color  name="aqua">#00FFFF</color>
     <color name="red">#FFFF0000</color>
     <color name="blue">#FF2196F3</color>
+    <color name="dark_gray">#757575</color>
 </resources>

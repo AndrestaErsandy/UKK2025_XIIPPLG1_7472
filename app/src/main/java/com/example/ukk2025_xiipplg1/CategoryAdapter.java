@@ -5,7 +5,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,26 +12,24 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>  {
+public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>{
 
     private List<CategoryModel> categoryList;
     private Context context;
+
+    private static final String URL_DELETE = "http://172.16.0.106/ukk2025/hapusKat.php";
+    private static final String URL_EDIT = "http://172.16.0.106/ukk2025/updateKat.php";
 
     public CategoryAdapter(Context context, List<CategoryModel> categoryList) {
         this.context = context;
@@ -45,13 +42,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_category, parent, false);
         return new CategoryViewHolder(view);
+
     }
 
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         CategoryModel category = categoryList.get(position);
         holder.textNomor.setText(String.valueOf(position + 1));
-        holder.textCategory.setText(category.getNama());
+        holder.textCategory.setText(category.getCategory());
 
         // DELETE ACTION
         holder.deleteIcon.setOnClickListener(v -> showDeleteConfirmationDialog(category, position));
@@ -80,98 +78,109 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     private void showDeleteConfirmationDialog(CategoryModel category, int position) {
         new AlertDialog.Builder(context)
-                .setMessage("Apakah Anda yakin ingin menghapus category ini?")
+                .setMessage("Apakah Anda yakin ingin menghapus Kategori ini?")
                 .setCancelable(false)
-                .setPositiveButton("Yakin", (dialog, id) -> deleteCategory(category, position))
+                .setPositiveButton("Yakin", (dialog, id) -> {
+                    dialog.dismiss();
+                    deleteKategori(category, position); // Panggil fungsi hapus di sini
+                })
                 .setNegativeButton("Batal", (dialog, id) -> dialog.dismiss())
                 .create()
                 .show();
     }
 
-    private void deleteCategory(CategoryModel category, int position) {
-        String url = "http://172.16.0.106/ukk2025/hapusKat.php?id=" + category.getId();
-
-        StringRequest request = new StringRequest(Request.Method.GET, url,
-                response -> {
-                    Toast.makeText(context, "category dihapus!", Toast.LENGTH_SHORT).show();
-                    categoryList.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, categoryList.size());
-                },
-                error -> {
-                    error.printStackTrace();
-                    Toast.makeText(context, "Gagal menghapus category! Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                });
-
-        RequestQueue queue = Volley.newRequestQueue(context);
-        queue.add(request);
-    }
-
-
     private void showEditDialog(CategoryModel category, int position) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.dialog_edt_category, null);
         builder.setView(view);
 
-        EditText editNama = view.findViewById(R.id.editNama);
+        TextInputEditText editNama = view.findViewById(R.id.editNama);
 
-        editNama.setText(category.getNama());
+        editNama.setText(category.getCategory());
 
-        builder.setTitle("Edit Category")
+        builder.setTitle("Edit Kategori")
                 .setPositiveButton("Simpan", (dialog, which) -> {
-                    updateCategory(category.getId(), editNama.getText().toString());
-                    dialog.dismiss(); // Tutup dialog setelah menyimpan
+                    String newName = editNama.getText().toString().trim();
+                    if (!newName.isEmpty()) {
+                        editCategory(category, newName, position); // Panggil function editKategori
+                    } else {
+                        Toast.makeText(context, "Nama kategori tidak boleh kosong", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .setNegativeButton("Batal", (dialog, which) -> dialog.dismiss())
-                .create()
                 .show();
     }
 
-    private void updateCategory(int id, String nama) {
-        String url = "http://172.16.0.106/ukk2025/updateKat.php";
+    // Fungsi untuk menghapus kategori
+    private void deleteKategori(CategoryModel category, int position) {
 
-        JSONObject params = new JSONObject();
-        try {
-            params.put("id", id);
-            params.put("nama", nama);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, params,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            String status = response.getString("status");
-                            if (status.equals("success")) {
-                                Toast.makeText(context, "Data berhasil diperbarui", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(context, "Gagal memperbarui data", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Toast.makeText(context, "Gagal memperbarui data", Toast.LENGTH_SHORT).show();
-                        }
+        StringRequest request = new StringRequest(Request.Method.POST, URL_DELETE,
+                response -> {
+                    if (response.trim().equals("Category deleted successfully")) {
+                        Toast.makeText(context, "Kategori berhasil dihapus", Toast.LENGTH_SHORT).show();
+                        categoryList.remove(position); // Hapus item dari daftar
+                        notifyItemRemoved(position); // Perbarui adapter
+                    } else {
+                        Toast.makeText(context, "Gagal menghapus kategori: " + response, Toast.LENGTH_SHORT).show();
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                error -> {
+                    Toast.makeText(context, "Gagal menghapus kategori. Kode: " + error.networkResponse.statusCode, Toast.LENGTH_SHORT).show();
                 }) {
+
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                return headers;
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("category_id", String.valueOf(category.getId()));
+                return params;
             }
         };
 
+        // Tambahkan request ke antrian Volley
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(request);
     }
 
+    private void editCategory(CategoryModel category, String newName, int position) {
+
+        // Validasi input sebelum dikirim ke server
+        if (newName.isEmpty()) {
+            Toast.makeText(context, "Nama kategori tidak boleh kosong", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_EDIT,
+                response -> {
+                    // Cek apakah respons mengandung pesan sukses
+                    if (response.trim().equalsIgnoreCase("Category updated successfully")) {
+                        Toast.makeText(context, "Kategori berhasil diperbarui", Toast.LENGTH_SHORT).show();
+                        category.setCategory(newName); // Update data di model
+                        notifyItemChanged(position); // Refresh item di RecyclerView
+                    } else {
+                        Toast.makeText(context, "Gagal memperbarui kategori: " + response, Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    String errorMessage = "Terjadi kesalahan, coba lagi.";
+                    if (error.networkResponse != null) {
+                        errorMessage = "Error " + error.networkResponse.statusCode + ": " + new String(error.networkResponse.data);
+                    }
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("category_id", String.valueOf(category.getId())); // Pastikan ID kategori benar
+                params.put("new_name", newName);
+                return params;
+            }
+        };
+
+        // Menambahkan request ke antrian Volley
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
 }
+

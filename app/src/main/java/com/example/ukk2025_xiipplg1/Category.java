@@ -1,27 +1,27 @@
 package com.example.ukk2025_xiipplg1;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -31,29 +31,60 @@ import java.util.Map;
 
 public class Category extends AppCompatActivity {
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private CategoryAdapter adapter;
     private List<CategoryModel> categoryList;
-    private Button btnTambahCategory;
+    private Button btnTambahPelanggan;
+    private ImageView bck;
+
+    private String userId;
+    private static final String URL_VIEW = "http://172.16.0.106//ukk2025/kategori.php";
+    private static final String URL_ADD = "http://172.16.0.106/ukk2025/tambahKat.php";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
 
+        SharedPreferences loginPrefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+        userId = loginPrefs.getString("idL", null);
+
+        if (userId == null) {
+            SharedPreferences regisPrefs = getSharedPreferences("RegisPrefs", MODE_PRIVATE);
+            userId = regisPrefs.getString("idR", null);
+        }
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this::loadData);
+
+        // Inisialisasi RecyclerView
         recyclerView = findViewById(R.id.recyclerViewCategory);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Inisialisasi Adapter
         categoryList = new ArrayList<>();
         adapter = new CategoryAdapter(this, categoryList);
         recyclerView.setAdapter(adapter);
 
-        btnTambahCategory = findViewById(R.id.btnTambahCategory);
-        btnTambahCategory.setOnClickListener(v -> showAddCategoryDialog());
+        // Tombol Tambah Pelanggan
+        btnTambahPelanggan = findViewById(R.id.btnTambahCategory);
+        btnTambahPelanggan.setOnClickListener(v -> showAddCategoryDialog());
 
-        fetchPelangganData();
+        bck = findViewById(R.id.Back);
+        bck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Category.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        loadData();
+
     }
-
 
     private void showAddCategoryDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -73,70 +104,73 @@ public class Category extends AppCompatActivity {
             if (nama.isEmpty()) {
                 Toast.makeText(this, "Semua data harus diisi!", Toast.LENGTH_SHORT).show();
             } else {
-                tambahCategory(nama);
+                tambahCategory(nama); // Ganti 1 dengan user_id yang sesuai
                 dialog.dismiss();
             }
         });
     }
 
-    private void tambahCategory(String nama) {
-        String url = "http://172.16.0.106/ukk2025/tambahKat.php";
+    private void loadData() {
+        swipeRefreshLayout.setRefreshing(true);
+        String url = URL_VIEW + "?user_id=" + userId;
 
-        StringRequest request = new StringRequest(Request.Method.POST, url,
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
                 response -> {
-                    Toast.makeText(Category.this, "Category berhasil ditambahkan", Toast.LENGTH_SHORT).show();
-                    fetchPelangganData();
+                    categoryList.clear();
+                    for (int i = 0; i < response.length(); i++) {
+                        try {
+                            JSONObject obj = response.getJSONObject(i);
+                            categoryList.add(new CategoryModel(obj.getString("id"), obj.getString("category")));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
                 },
-                error -> Toast.makeText(Category.this, "Gagal menambahkan category", Toast.LENGTH_SHORT).show()) {
+                error -> {
+                    swipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(this, "Gagal memuat data", Toast.LENGTH_SHORT).show();
+                });
+
+        Volley.newRequestQueue(this).add(request);
+    }
+
+    private void tambahCategory(String namaKategori) {
+
+        SharedPreferences loginPrefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+        String userId = loginPrefs.getString("idL", null);
+
+        if (userId == null) {
+            SharedPreferences regisPrefs = getSharedPreferences("RegisPrefs", MODE_PRIVATE);
+            userId = regisPrefs.getString("idR", null);
+        }
+
+        if (userId == null) {
+            Toast.makeText(this, "Gagal mendapatkan User ID!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String finalUserId = userId;
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_ADD,
+                response -> {
+                    Toast.makeText(this, "Kategori berhasil ditambahkan!", Toast.LENGTH_SHORT).show();
+                    loadData();
+                },
+                error -> {
+                    Toast.makeText(this, "Gagal menambahkan kategori: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }) {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("nama", nama);
+                params.put("category", namaKategori);
+                params.put("user_id", finalUserId);
                 return params;
             }
         };
 
-        RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(request);
-    }
-
-    private void fetchPelangganData() {
-        String url = "http://172.16.0.106/ukk2025/kategori.php";
-
+        // Tambahkan request ke antrian Volley
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray dataArray = response.getJSONArray("data");
-
-                            for (int i = 0; i < dataArray.length(); i++) {
-                                JSONObject obj = dataArray.getJSONObject(i);
-                                String nama = obj.getString("nama");
-                                int id = obj.getInt("id");  // Menyimpan id_pe
-
-                                categoryList.add(new CategoryModel(nama, id));
-                            }
-
-                            adapter.notifyDataSetChanged();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Toast.makeText(Category.this, "Error parsing JSON", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(Category.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        requestQueue.add(jsonObjectRequest);
+        requestQueue.add(stringRequest);
     }
 }

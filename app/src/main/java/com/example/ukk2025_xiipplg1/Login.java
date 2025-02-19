@@ -90,15 +90,15 @@ public class Login extends AppCompatActivity {
                                 JSONObject userData = response.getJSONObject("data");
                                 String id = userData.getString("id");
 
-                                SharedPreferences sharedPreferences = getSharedPreferences("userPrefs", MODE_PRIVATE);
+                                SharedPreferences sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putString("id", id);
+                                editor.putString("idL", id);
                                 editor.apply();
 
                                 Log.d("SharedPreferences", "id: " + id);
 
                                 Intent intent = new Intent(Login.this, MainActivity.class);
-                                intent.putExtra("id", id);
+                                intent.putExtra("idL", id);
                                 startActivity(intent);
                                 finish();
                             } else {

@@ -2,28 +2,24 @@ package com.example.ukk2025_xiipplg1;
 
 public class CategoryModel {
 
-    private String nama;
-    private int id;
+    private String id;
+    private String category;
 
-    public CategoryModel(String nama, int id) {
-        this.nama = nama;
+    public CategoryModel(String id, String category) {
         this.id = id;
+        this.category = category;
     }
 
-    public String getNama() {
-        return nama;
-    }
-
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setNama(String nama) {
-        this.nama = nama;
+    public String getCategory() {
+        return category;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
 
