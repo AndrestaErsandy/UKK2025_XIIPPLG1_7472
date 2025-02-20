@@ -6,4 +6,6 @@
     <color name="red">#FFFF0000</color>
     <color name="blue">#FF2196F3</color>
     <color name="dark_gray">#757575</color>
+    <color name="blue_drak">#0000FF</color>
+    <color name="Blue_violet">#8A2BE2</color>
 </resources>

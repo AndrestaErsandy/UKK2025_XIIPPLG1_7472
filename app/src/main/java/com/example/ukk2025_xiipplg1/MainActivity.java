@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnLogout, btnCategory;
+    private Button btnLogout, btnCategory, btnTask;
 
     private TextView pro;
 
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogout = findViewById(R.id.btnLogout);
         btnCategory = findViewById(R.id.btnCategory);
+        btnTask = findViewById(R.id.btnTask);
         tvProfil = findViewById(R.id.tvProfil);
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -56,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, Category.class);
+                startActivity(intent);
+            }
+        });
+
+        btnTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, Task.class);
                 startActivity(intent);
             }
         });

@@ -51,10 +51,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.textNomor.setText(String.valueOf(position + 1));
         holder.textCategory.setText(category.getCategory());
 
-        // DELETE ACTION
         holder.deleteIcon.setOnClickListener(v -> showDeleteConfirmationDialog(category, position));
 
-        // EDIT ACTION
         holder.editIcon.setOnClickListener(v -> showEditDialog(category, position));
     }
 
@@ -82,7 +80,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 .setCancelable(false)
                 .setPositiveButton("Yakin", (dialog, id) -> {
                     dialog.dismiss();
-                    deleteKategori(category, position); // Panggil fungsi hapus di sini
+                    deleteKategori(category, position);
                 })
                 .setNegativeButton("Batal", (dialog, id) -> dialog.dismiss())
                 .create()
@@ -103,7 +101,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 .setPositiveButton("Simpan", (dialog, which) -> {
                     String newName = editNama.getText().toString().trim();
                     if (!newName.isEmpty()) {
-                        editCategory(category, newName, position); // Panggil function editKategori
+                        editCategory(category, newName, position);
                     } else {
                         Toast.makeText(context, "Nama kategori tidak boleh kosong", Toast.LENGTH_SHORT).show();
                     }
@@ -112,15 +110,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 .show();
     }
 
-    // Fungsi untuk menghapus kategori
     private void deleteKategori(CategoryModel category, int position) {
 
         StringRequest request = new StringRequest(Request.Method.POST, URL_DELETE,
                 response -> {
                     if (response.trim().equals("Category deleted successfully")) {
                         Toast.makeText(context, "Kategori berhasil dihapus", Toast.LENGTH_SHORT).show();
-                        categoryList.remove(position); // Hapus item dari daftar
-                        notifyItemRemoved(position); // Perbarui adapter
+                        categoryList.remove(position);
+                        notifyItemRemoved(position);
                     } else {
                         Toast.makeText(context, "Gagal menghapus kategori: " + response, Toast.LENGTH_SHORT).show();
                     }
@@ -137,14 +134,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             }
         };
 
-        // Tambahkan request ke antrian Volley
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(request);
     }
 
     private void editCategory(CategoryModel category, String newName, int position) {
 
-        // Validasi input sebelum dikirim ke server
         if (newName.isEmpty()) {
             Toast.makeText(context, "Nama kategori tidak boleh kosong", Toast.LENGTH_SHORT).show();
             return;
@@ -152,11 +147,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_EDIT,
                 response -> {
-                    // Cek apakah respons mengandung pesan sukses
                     if (response.trim().equalsIgnoreCase("Category updated successfully")) {
                         Toast.makeText(context, "Kategori berhasil diperbarui", Toast.LENGTH_SHORT).show();
-                        category.setCategory(newName); // Update data di model
-                        notifyItemChanged(position); // Refresh item di RecyclerView
+                        category.setCategory(newName);
+                        notifyItemChanged(position);
                     } else {
                         Toast.makeText(context, "Gagal memperbarui kategori: " + response, Toast.LENGTH_SHORT).show();
                     }
@@ -171,13 +165,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("category_id", String.valueOf(category.getId())); // Pastikan ID kategori benar
+                params.put("category_id", String.valueOf(category.getId()));
                 params.put("new_name", newName);
                 return params;
             }
         };
 
-        // Menambahkan request ke antrian Volley
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
     }

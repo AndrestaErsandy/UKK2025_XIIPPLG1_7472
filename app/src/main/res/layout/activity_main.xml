@@ -4,53 +4,69 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_menu"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/tvHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="192dp"
-        android:text="Main Menu"
+        android:layout_marginTop="180dp"
+        android:fontFamily="sans-serif-black"
+        android:text="Wellcome, To Do List"
+        android:textColor="@color/black"
         android:textSize="30dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.459"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnLogout"
-        android:layout_width="216dp"
-        android:layout_height="51dp"
-        android:layout_marginTop="172dp"
-        android:backgroundTint="@color/red"
+        android:layout_width="157dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="28dp"
+        android:backgroundTint="@color/white"
         android:text="Log Out"
         android:textColor="@color/black"
         android:textSize="17dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnCategory" />
+        app:layout_constraintTop_toBottomOf="@+id/btnTask" />
 
     <ImageView
         android:id="@+id/tvProfil"
         android:layout_width="69dp"
         android:layout_height="69dp"
         app:srcCompat="@drawable/baseline_person_pin_24"
-        tools:layout_editor_absoluteX="27dp"
-        tools:layout_editor_absoluteY="27dp" />
+        tools:layout_editor_absoluteX="41dp"
+        tools:layout_editor_absoluteY="35dp" />
 
     <Button
         android:id="@+id/btnCategory"
         android:layout_width="150dp"
         android:layout_height="61dp"
-        android:layout_marginTop="108dp"
+        android:layout_marginTop="80dp"
+        android:backgroundTint="@color/black"
         android:text="Categories"
-        android:backgroundTint="@color/aqua"
-        android:textColor="@color/black"
-        android:textSize="20dp"
+        android:textColor="@color/white"
+        android:textSize="18dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
+
+    <Button
+        android:id="@+id/btnTask"
+        android:layout_width="150dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="28dp"
+        android:backgroundTint="@color/black"
+        android:text="Task"
+        android:textColor="@color/white"
+        android:textSize="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnCategory" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

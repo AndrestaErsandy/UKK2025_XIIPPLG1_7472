@@ -60,16 +60,13 @@ public class Category extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this::loadData);
 
-        // Inisialisasi RecyclerView
         recyclerView = findViewById(R.id.recyclerViewCategory);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Inisialisasi Adapter
         categoryList = new ArrayList<>();
         adapter = new CategoryAdapter(this, categoryList);
         recyclerView.setAdapter(adapter);
 
-        // Tombol Tambah Pelanggan
         btnTambahPelanggan = findViewById(R.id.btnTambahCategory);
         btnTambahPelanggan.setOnClickListener(v -> showAddCategoryDialog());
 
@@ -104,7 +101,7 @@ public class Category extends AppCompatActivity {
             if (nama.isEmpty()) {
                 Toast.makeText(this, "Semua data harus diisi!", Toast.LENGTH_SHORT).show();
             } else {
-                tambahCategory(nama); // Ganti 1 dengan user_id yang sesuai
+                tambahCategory(nama);
                 dialog.dismiss();
             }
         });
@@ -169,7 +166,6 @@ public class Category extends AppCompatActivity {
             }
         };
 
-        // Tambahkan request ke antrian Volley
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
     }

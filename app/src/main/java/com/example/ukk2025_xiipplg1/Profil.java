@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,12 +22,12 @@ import org.json.JSONObject;
 
 public class Profil extends AppCompatActivity {
 
-    private Button btnLogMain;
-
     private TextView name, email;
     private String userId;
 
     private ImageView log;
+
+    private ImageView logMain;
 
     private static final String API_URL = "http://172.16.0.106/ukk2025/profil.php";
 
@@ -38,10 +37,10 @@ public class Profil extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
 
-        btnLogMain = findViewById(R.id.btnLogMain);
         name = findViewById(R.id.txNama);
         email = findViewById(R.id.txEmail);
-        log=findViewById(R.id.logt);
+        log = findViewById(R.id.logt);
+        logMain = findViewById(R.id.BackMain);
 
         SharedPreferences loginPrefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
         userId = loginPrefs.getString("idL", null);
@@ -61,7 +60,7 @@ public class Profil extends AppCompatActivity {
                 }
             });
 
-            btnLogMain.setOnClickListener(new View.OnClickListener() {
+            logMain.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(Profil.this, MainActivity.class);
